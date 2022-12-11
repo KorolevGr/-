@@ -1,0 +1,173 @@
+import tkinter as tk
+from tkinter import filedialog as fd
+import openpyxl
+import re
+
+
+region = 'Восток'
+dolgota = []
+shirota = []
+based = []
+grad, minq, seq = [], [], []
+graduz = []
+list_kord = []
+dolg = []
+shir = []
+
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title = 'ConverterGPX'
+        self.gui()
+
+    def gui(self):
+        label_koord = tk.Label(self, text='Выберите файл с координатами (Excel)')
+        label_koord.pack()
+        open_button = tk.Button(self, text='Загрузить и конвертировать', command=self.add_kord)
+        open_button.pack()
+        self.text = tk.Text(width=40, height=1)
+        self.text.pack()
+        label_kml = tk.Label(self, text='Выберите .kml файл')
+        label_kml.pack()
+        open_button2 = tk.Button(self, text='Загрузить и конвертировать', command=self.kml_gpx)
+        open_button2.pack()
+
+    def add_kord(self):
+        filename = fd.askopenfilename(filetypes=[("EXCEL files", "*.xlsx")])
+        if filename.endswith('xlsx') or filename.endswith('xls'):
+            book = openpyxl.open(filename)
+            sheet = book.active
+            for row in range(1, sheet.max_row + 1):
+                for column in range(0, sheet.max_column):
+                    kord = str(sheet[row][column].value)
+                    if kord.startswith('.', 2) or kord.startswith('.', 3):  # выбор колонки с десятичными градусами
+                        t = ''.join(re.findall(r'[a-df-mo-zA-DF-MO-Zа-яА-Я-]', kord))  # кроме E, N
+                        if t == '':
+                            kord1 = re.sub(r'[NE⁰°]', r'', kord)
+                            if region == 'Восток':
+                                if float(kord1) > 70.0:
+                                    shirota.append(kord1)
+                                else:
+                                    dolgota.append(kord1)
+                        else:
+                            continue
+                    else:
+                        if len(kord) > 9:  # минимальное количество символов для такой формы - 10
+                            g = list(kord)
+                            while g[-1] == ' ':  # удаление лишних пробелов
+                                g.pop(-1)
+                            kord_g = (''.join(g))
+                            nkord = kord_g.replace('N', '')
+                            ekord = nkord.replace('E', '')
+                            t = ''.join(re.findall(r'[a-df-mo-zA-DF-MO-Zа-яА-Я]', ekord))
+                            if ekord.startswith(' ', 2) and t == '':  # выбор формы записи координат в градусах, минутах и секундах, где вместо этих знаков стоит пробел
+                                based = list(map(float, ekord.split(' ')))  # создание списка с элементами координат
+                                while based:
+                                    grad.append(based.pop(
+                                        0))  # удаление элементов из "основного" списка и добавление в "целевой"
+                                    minq.append(based.pop(0))
+                                    seq.append(based.pop(0))
+                                    gradus = grad[0] + round(minq[0] / 60, 6) + round(seq[0] / 3600, 6)  # приведение к десятичным градусам
+                                    grad.pop(0)
+                                    minq.pop(0)
+                                    seq.pop(0)
+                                    graduz.append(gradus)  # добавление в список десятичных градусов
+                            if ekord.startswith('°', 2) or ekord.startswith('⁰', 2):  # приведение к описанной выше форме
+                                kord_preo = re.sub(r'[ "“]', r'', ekord)
+                                kord_preob = re.sub(r'[\'°⁰‘]', r' ', kord_preo)
+                                z = kord_preob.replace(',', '.')
+                                based = list(map(float, z.split(' ')))
+                                while based:
+                                    grad.append(based.pop(0))  # удаление элементов из "основного" списка и добавление в "целевой"
+                                    minq.append(based.pop(0))
+                                    seq.append(based.pop(0))
+                                    gradus = grad[0] + round(minq[0] / 60, 6) + round(seq[0] / 3600, 6)  # приведение к десятичным градусам
+                                    grad.pop(0)
+                                    minq.pop(0)
+                                    seq.pop(0)
+                                    graduz.append(gradus)  # добавление в список десятичных градусов
+                            for i in graduz:
+                                if region == 'Восток':
+                                    if i > 70.0:
+                                        shirota.append(i)
+                                    else:
+                                        dolgota.append(i)
+
+        my_file = open("trackfile.gpx", "w+")  # создание файла
+        my_file.write('''<?xml version="1.0" encoding="UTF-8"?>
+    <gpx xmlns="http://www.topografix.com/GPX/1/1" creator="SAS.Planet" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtrx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd">
+      <metadata>
+        <time>2022-11-29T10:06:19Z</time>
+        <link href="http://www.sasgis.org/">
+          <text>SAS.Planet</text>
+        </link>
+        <name>2</name>
+        <desc>styleUrl: #m_ylw-pushpin</desc>
+        <author>
+          <name>korolev.ilya</name>
+        </author>
+      </metadata>''')
+        my_file.close()
+
+        for i in range(len(shirota)):  # одинаковый параметр для обоих списков
+            with open('trackfile.gpx', 'r+') as f:
+                f.seek(0, 2)  # перемещение курсора в конец файла
+                stroka = '<wpt lat="{}" lon="{}"><name>2</name><fix>2d</fix><cmt>styleUrl:#m_ylw-pushpin</cmt><type>user</type><sym>Flag, Blue</sym> <link href="files\\1.png"/><extensions><gpxx:WaypointExtension><gpxx:DisplayMode>SymbolOnly</gpxx:DisplayMode><gpxx:Categories><gpxx:Category>Новая категория</gpxx:Category><gpxx:Category>bbb.kml</gpxx:Category></gpxx:Categories></gpxx:WaypointExtension><wptx1:WaypointExtension><wptx1:DisplayMode>SymbolOnly</wptx1:DisplayMode><wptx1:Categories><wptx1:Category>cat</wptx1:Category><wptx1:Category>bbb.kml</wptx1:Category></wptx1:Categories></wptx1:WaypointExtension></extensions></wpt>'.format(
+                    dolgota[i], shirota[i])
+                f.write(stroka)
+
+        with open('trackfile.gpx', 'r+') as f:
+            f.seek(0, 2)
+            ending = '</gpx>'
+            f.write(ending)
+            print('Готово')
+            f.close()
+
+    def kml_gpx(self):
+        filename = fd.askopenfilename(filetypes=[("KML", "*.kml")])
+        f = open(filename)
+        if filename.endswith('kml'):
+            line = f.read()
+            if not '<LineString>' in line: #перевод точек
+                det = re.findall(r'<coordinates>([^uu]+)</coordinates>', line)
+                for i in det:
+                    koord = re.findall(r'\b([^tt]+)\,\d', i)# удаление запятой и нуля
+                    for z in koord:
+                        koord_dolg = (''.join(re.findall(r'\b([^tt]+)\,\d', z)))  # выделение долготы
+                        koord_shir = (''.join(re.findall(r'\,([^tt]+)\b', z)))  # выделение широты
+                        dolg.append(koord_dolg)
+                        shir.append(koord_shir)
+
+        my_file = open("trackfile.gpx", "w+") #создание файла
+        my_file.write('''<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="SAS.Planet" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtrx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd">
+  <metadata>
+    <time>2022-11-29T10:06:19Z</time>
+    <link href="http://www.sasgis.org/">
+      <text>SAS.Planet</text>
+    </link>
+    <name>2</name>
+    <desc>styleUrl: #m_ylw-pushpin</desc>
+    <author>
+      <name>korolev.ilya</name>
+    </author>
+  </metadata>''')
+        my_file.close()
+
+        for i in range(len(dolg)):
+            with open('trackfile.gpx', 'r+') as f:
+                f.seek(0, 2)  # перемещение курсора в конец файла
+                stroka = '<wpt lat="{}" lon="{}"><name>2</name><fix>2d</fix><cmt>styleUrl:#m_ylw-pushpin</cmt><type>user</type><sym>Flag, Blue</sym> <link href="files\\1.png"/><extensions><gpxx:WaypointExtension><gpxx:DisplayMode>SymbolOnly</gpxx:DisplayMode><gpxx:Categories><gpxx:Category>Новая категория</gpxx:Category><gpxx:Category>bbb.kml</gpxx:Category></gpxx:Categories></gpxx:WaypointExtension><wptx1:WaypointExtension><wptx1:DisplayMode>SymbolOnly</wptx1:DisplayMode><wptx1:Categories><wptx1:Category>cat</wptx1:Category><wptx1:Category>bbb.kml</wptx1:Category></wptx1:Categories></wptx1:WaypointExtension></extensions></wpt>'.format(shir[i],dolg[i])
+                f.write(stroka)
+
+
+        with open('trackfile.gpx', 'r+') as f:
+            f.seek(0, 2)
+            ending = '</gpx>'
+            f.write(ending)
+            f.close()
+
+if __name__ == '__main__':
+    app = App()
+    app.mainloop()
