@@ -95,26 +95,13 @@ class App(tk.Tk):
                                         dolgota.append(i)
 
         my_file = open("trackfile.gpx", "w+")  # создание файла
-        my_file.write('''<?xml version="1.0" encoding="UTF-8"?>
-    <gpx xmlns="http://www.topografix.com/GPX/1/1" creator="SAS.Planet" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtrx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd">
-      <metadata>
-        <time>2022-11-29T10:06:19Z</time>
-        <link href="http://www.sasgis.org/">
-          <text>SAS.Planet</text>
-        </link>
-        <name>2</name>
-        <desc>styleUrl: #m_ylw-pushpin</desc>
-        <author>
-          <name>korolev.ilya</name>
-        </author>
-      </metadata>''')
+        my_file.write('''<?xml version="1.0" encoding="utf-8"?><gpx version="1.1" creator="User">''')
         my_file.close()
 
         for i in range(len(shirota)):  # одинаковый параметр для обоих списков
             with open('trackfile.gpx', 'r+') as f:
                 f.seek(0, 2)  # перемещение курсора в конец файла
-                stroka = '<wpt lat="{}" lon="{}"><name>2</name><fix>2d</fix><cmt>styleUrl:#m_ylw-pushpin</cmt><type>user</type><sym>Flag, Blue</sym> <link href="files\\1.png"/><extensions><gpxx:WaypointExtension><gpxx:DisplayMode>SymbolOnly</gpxx:DisplayMode><gpxx:Categories><gpxx:Category>Новая категория</gpxx:Category><gpxx:Category>bbb.kml</gpxx:Category></gpxx:Categories></gpxx:WaypointExtension><wptx1:WaypointExtension><wptx1:DisplayMode>SymbolOnly</wptx1:DisplayMode><wptx1:Categories><wptx1:Category>cat</wptx1:Category><wptx1:Category>bbb.kml</wptx1:Category></wptx1:Categories></wptx1:WaypointExtension></extensions></wpt>'.format(
-                    dolgota[i], shirota[i])
+                stroka = '<wpt lat="{}" lon="{}"><ele>0</ele><name>2</name><extensions><description>styleUrl: #m_ylw-pushpin</description><extrude>true</extrude></extensions></wpt>'.format(dolgota[i], shirota[i])
                 f.write(stroka)
 
         with open('trackfile.gpx', 'r+') as f:
@@ -140,25 +127,13 @@ class App(tk.Tk):
                         shir.append(koord_shir)
 
         my_file = open("trackfile.gpx", "w+") #создание файла
-        my_file.write('''<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="SAS.Planet" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtrx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd">
-  <metadata>
-    <time>2022-11-29T10:06:19Z</time>
-    <link href="http://www.sasgis.org/">
-      <text>SAS.Planet</text>
-    </link>
-    <name>2</name>
-    <desc>styleUrl: #m_ylw-pushpin</desc>
-    <author>
-      <name>korolev.ilya</name>
-    </author>
-  </metadata>''')
+        my_file.write('''<?xml version="1.0" encoding="utf-8"?><gpx version="1.1" creator="User">''')
         my_file.close()
 
         for i in range(len(dolg)):
             with open('trackfile.gpx', 'r+') as f:
                 f.seek(0, 2)  # перемещение курсора в конец файла
-                stroka = '<wpt lat="{}" lon="{}"><name>2</name><fix>2d</fix><cmt>styleUrl:#m_ylw-pushpin</cmt><type>user</type><sym>Flag, Blue</sym> <link href="files\\1.png"/><extensions><gpxx:WaypointExtension><gpxx:DisplayMode>SymbolOnly</gpxx:DisplayMode><gpxx:Categories><gpxx:Category>Новая категория</gpxx:Category><gpxx:Category>bbb.kml</gpxx:Category></gpxx:Categories></gpxx:WaypointExtension><wptx1:WaypointExtension><wptx1:DisplayMode>SymbolOnly</wptx1:DisplayMode><wptx1:Categories><wptx1:Category>cat</wptx1:Category><wptx1:Category>bbb.kml</wptx1:Category></wptx1:Categories></wptx1:WaypointExtension></extensions></wpt>'.format(shir[i],dolg[i])
+                stroka = '<wpt lat="{}" lon="{}"><ele>0</ele><name>2</name><extensions><description>styleUrl: #m_ylw-pushpin</description><extrude>true</extrude></extensions></wpt>'.format(shir[i],dolg[i])
                 f.write(stroka)
 
 
